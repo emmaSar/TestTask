@@ -33,10 +33,10 @@ export const Colors: IColor = {
   secondary100: '#1C8E00',
   secondary140: '#186006',
   gray0: '#FFFFFF',
-  gray05: 'F3F4F6',
+  gray05: '#F3F4F6',
   gray10: '#E5E7EB',
-  gray20: 'D1D5DB',
+  gray20: '#D1D5DB',
   gray60: '#9CA3AF',
-  gray70: '6B7280',
+  gray70: '#6B7280',
   gray100: '#111827',
 };

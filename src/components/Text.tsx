@@ -26,21 +26,27 @@ export interface ITextProps extends RNTextProps {
 
 export const FontFamily = {
   Poppins: 'Poppins',
-};
+} as const;
 
-const FontWeightName: {[key: string]: string} = {
+type FontWeight = '400' | '500' | '600' | '700';
+
+const FontWeightMap: Record<FontWeight, string> = {
   '400': 'Regular',
   '500': 'Medium',
-  '600': 'Bold',
+  '600': 'SemiBold',
   '700': 'Bold',
 };
 
-export const providePlatformTextStyle = (styles: StyleProp<RNTextStyle>) => {
+export const providePlatformTextStyle = (
+  styles: StyleProp<RNTextStyle>,
+): RNTextStyle => {
   const flatten = StyleSheet.flatten(styles);
 
   if (
     flatten.fontFamily &&
-    !Object.values(FontFamily).includes(flatten.fontFamily)
+    !Object.values(FontFamily).includes(
+      flatten.fontFamily as keyof typeof FontFamily,
+    )
   ) {
     throw new Error(
       `Unknown font family provided. Provided: ${
@@ -49,27 +55,23 @@ export const providePlatformTextStyle = (styles: StyleProp<RNTextStyle>) => {
     );
   }
 
-  if (
-    flatten.fontWeight &&
-    flatten.fontWeight !== 'bold' &&
-    flatten.fontWeight !== 'normal'
-  ) {
-    if (!(flatten.fontWeight in FontWeightName)) {
-      throw new Error(
-        `Unknown font weight provided. Provided: ${
-          flatten.fontWeight
-        }, available: [${Object.keys(FontWeightName)}]`,
-      );
+  if (flatten.fontWeight) {
+    const weight = flatten.fontWeight.toString();
+    if (weight in FontWeightMap) {
+      flatten.fontFamily = `${flatten.fontFamily}-${
+        FontWeightMap[weight as FontWeight]
+      }`;
+    } else if (flatten.fontWeight === 'normal') {
+      flatten.fontFamily = `${flatten.fontFamily}-Regular`;
+    } else if (flatten.fontWeight === 'bold') {
+      flatten.fontFamily = `${flatten.fontFamily}-Bold`;
     }
-    flatten.fontFamily = `${flatten.fontFamily}-${
-      FontWeightName[flatten.fontWeight]
-    }`;
     delete flatten.fontWeight;
   } else {
-    flatten.fontFamily = `${flatten.fontFamily}-${
-      FontWeightName[flatten.fontWeight === 'normal' ? 400 : 700]
-    }`;
+    // Default to Regular if no weight specified
+    flatten.fontFamily = `${flatten.fontFamily}-Regular`;
   }
+
   return flatten;
 };
 
@@ -91,8 +93,9 @@ const Text: React.FC<ITextProps> = ({
     centered && TextStyle.centered,
     style,
   ]);
+
   return (
-    <RNText style={[style, platformStyle]} {...rest}>
+    <RNText style={platformStyle} {...rest}>
       {children}
     </RNText>
   );
@@ -145,4 +148,5 @@ export const TextStyle = StyleSheet.create({
     fontFamily: FontFamily.Poppins,
   },
 });
+
 export default Text;
