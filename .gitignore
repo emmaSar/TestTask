@@ -34,6 +34,13 @@ local.properties
 *.keystore
 !debug.keystore
 
+# Android build outputs - prevent APK files from being committed
+android/app/build/
+android/build/
+android/.gradle/
+*.apk
+*.aab
+
 # node.js
 #
 node_modules/
